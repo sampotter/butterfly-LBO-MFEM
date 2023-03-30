@@ -1,0 +1,38 @@
+* LBO butterfly factorization using MFEM
+
+This program demonstrates using [[https://github.com/sampotter/butterfly][libbutterfly]] in tandem with [[https://mfem.org][MFEM]] to:
+
+1. use MFEM to solve the Laplace-Beltrami eigenvalue problem on the
+   sphere (could be extended to a more general domain)
+2. compress the resulting eigenvectors using libbutterfly
+
+To install libbutterfly, follow the instructions given on the
+libbutterfly [[https://github.com/sampotter/butterfly][webpage]], making sure to run `meson install`.
+
+To install MFEM, a slight complication is that MFEM doesn't currently
+support solving eigenvalue problems in serial, only in parallel. See
+this [[https://github.com/mfem/mfem/issues/114][thread]]. So, for this to work, we need to compile the parallel
+version of MFEM, which requires MPI. I'll try to collect some notes
+about how to do this on different platforms. See below.
+
+Once both libbutterfly, MFEM, and MFEM's dependencies HYPRE and METIS
+are installed, you can use meson to build by adjusting `mfem_root`,
+'hypre_root', and 'metis_root' in [[meson.build]] to point to the unpacked
+repositories and running:
+
+#+BEGIN_SRC sh
+  meson setup builddir --warnlevel=0
+  cd builddir
+  meson compile
+#+END_SRC
+
+** Fedora
+
+The tricky part on Fedora is actually figuring out how to use
+MPI. Fedora uses [[https://modules.sourceforge.net/][environment modules]] to manage different MPI
+implementations. MPI needs to loaded using the `module` command
+([[https://docs.fedoraproject.org/en-US/packaging-guidelines/MPI/][e.g.]]). To actually get `module` on your path, you first need to
+`source /etc/profile.d/modules.sh`. See [[https://brandonrozek.com/blog/openmpi-fedora/][this blog post]].
+
+Once an MPI module has been loaded, [[https://mfem.org/building/][compile the parallel MPI version
+of MFEM]].
